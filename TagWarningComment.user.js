@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.1
+// @version     15.10.2
 // ==/UserScript==
 
 var token = 'YOUR_ACCESS_TOKEN';    
@@ -16,14 +16,15 @@ var siteUrl = 'http://math.stackexchange.com';
 
 var qId, maxId = 0, topTag;
 var standardComment = 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question.';
+   // most popular tags are whitelisted to reduce API requests:  
 var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics'];
- // most popular tags are whitelisted to reduce API requests  
-var okay = ['coding-theory', 'computability', 'harmonic-analysis', 'predicate-logic', 'information-theory']; 
- // These are rare (<1000 questions) but okay 
-var special = ['cryptography', 'economics', 'philosophy'];
- // These warrant a more specific comment
+   // These are rare (<1000 questions) but okay:  
+var okay = ['boolean-algebra', 'coding-theory', 'computability', 'harmonic-analysis', 'predicate-logic', 'information-theory']; 
+   // These warrant a more specific comment:
+var special = ['cryptography', 'economics', 'math-history', 'philosophy'];
 var specialComments = ["If you haven't already, consider asking at [Cryptography.SE] instead.",
                        "If you haven't already, consider asking at [Economics.SE] instead.",
+                       "If you haven't already, consider asking at [HSM.SE] instead.",
                        "If you haven't already, consider asking at [Philosophy.SE] instead."];
 startup();
 
@@ -40,19 +41,22 @@ function startup() {
 
 
 function processQuestion(data) {
+  var report; 
   qId = parseInt(data.id, 10);
   if (qId > maxId) {
     maxId = qId;
     topTag = data.tags[0];
     if (special.indexOf(topTag) > -1 ) {
-      comment(qId, specialComment[special.indexOf(topTag)]);
+      report = 'Question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
+      console.log(report);
+      comment(qId, specialComments[special.indexOf(topTag)]);
     }
     if (popular.indexOf(topTag) == -1 && okay.indexOf(topTag) == -1) {
       var filter = '!GeBU7l0z-7CFD';
       var request = '//api.stackexchange.com/2.2/tags/'+topTag+'/info?order=desc&sort=popular&site='+site+'&filter='+filter+'&key='+apiKey;
       $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
         var count = data.items[0].count;
-        var report = 'Count ' + count + ' for question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
+        report = 'Count ' + count + ' for question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
         console.log(report);
         if (count < 1000) {  
           comment(qId, standardComment);
@@ -79,7 +83,7 @@ function handle(data) {
   else {
     console.log(data);
     report = 'Commented on '+siteUrl+'/q/'+qId;
-    window.setTimeout(deleteComment, 600000, data.items[0].comment_id);
+    window.setTimeout(deleteComment, 300000, data.items[0].comment_id);
   }
   console.log(report);
 }
