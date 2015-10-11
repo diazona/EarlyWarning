@@ -14,7 +14,7 @@ var apiKey = 'vURDLnkgkrLc7qAq)D89tA((';
 var site = 'math';
 var siteUrl = 'http://math.stackexchange.com';
 
-var qId, maxId = 0, topTag;
+var qId, topTag;
 var standardComment = 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question.';
    // most popular tags are whitelisted to reduce API requests:  
 var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics'];
@@ -35,34 +35,31 @@ function startup() {
   ws.onmessage = function(e) {
     processQuestion(JSON.parse(JSON.parse(e.data).data));
   };
-  ws.onopen = function() { ws.send('69-questions-active'); };
+  ws.onopen = function() { ws.send('69-questions-newest'); };
   ws.onclose = function() {console.log('Websocket closed'); window.setTimeout(startup, 10000);};
 }
 
 
 function processQuestion(data) {
   var report; 
-  qId = parseInt(data.id, 10);
-  if (qId > maxId) {
-    maxId = qId;
-    topTag = data.tags[0];
-    if (special.indexOf(topTag) > -1 ) {
-      report = 'Question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
+  qId = data.id;
+  topTag = data.tags[0];
+  if (special.indexOf(topTag) > -1 ) {
+    report = 'Question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
+    console.log(report);
+    comment(qId, specialComments[special.indexOf(topTag)]);
+  }
+  if (popular.indexOf(topTag) == -1 && okay.indexOf(topTag) == -1) {
+    var filter = '!GeBU7l0z-7CFD';
+    var request = '//api.stackexchange.com/2.2/tags/'+topTag+'/info?order=desc&sort=popular&site='+site+'&filter='+filter+'&key='+apiKey;
+    $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
+      var count = data.items[0].count;
+      report = 'Count ' + count + ' for question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
       console.log(report);
-      comment(qId, specialComments[special.indexOf(topTag)]);
-    }
-    if (popular.indexOf(topTag) == -1 && okay.indexOf(topTag) == -1) {
-      var filter = '!GeBU7l0z-7CFD';
-      var request = '//api.stackexchange.com/2.2/tags/'+topTag+'/info?order=desc&sort=popular&site='+site+'&filter='+filter+'&key='+apiKey;
-      $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
-        var count = data.items[0].count;
-        report = 'Count ' + count + ' for question '+siteUrl+'/q/' + qId + '\nTop tag: ' + topTag;
-        console.log(report);
-        if (count < 1000) {  
-          comment(qId, standardComment);
-        }
-      });
-    }
+      if (count < 1000) {  
+        comment(qId, standardComment);
+      }
+    });
   }
 }
 
