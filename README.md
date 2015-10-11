@@ -6,4 +6,6 @@ This script scans the tags on new questions on a particular site (using websocke
 
 Motivated by the feature request [A warning to those who use only rare/new tags](http://meta.math.stackexchange.com/q/21669); consequently, the logic of tag handling is specific to Math site.
 
+The required access token can be obtained from URL hash after following [this link](https://stackexchange.com/oauth/dialog?client_id=5748&scope=no_expiry,write_access&redirect_uri=https://stackexchange.com/) and authorizing the application.
+
 License: [WTFPL](http://www.wtfpl.net)
