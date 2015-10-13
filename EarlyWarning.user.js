@@ -49,7 +49,7 @@ function startup() {
   };
   ws.onopen = function() { ws.send('69-questions-newest'); };
   ws.onclose = function() {console.log('Websocket closed'); window.setTimeout(startup, 10000);};
-  report = 'Tag Warning Bot started up.\n'+Date().toString();
+  report = 'Early Warning Bot started up.\n'+Date().toString();
   console.log(report); 
 }
 
@@ -59,7 +59,7 @@ function processQuestion(data) {
   var title = data.body.split('"question-hyperlink">')[1].split('</a>')[0];
   comment = commentOnTitle(title);
   topTag = data.tags[0];
-  if (data.tags.indexOf('self-learning') > 0 && data.tags.indexOf('soft-question') == -1 && data.tags.indexOf('education') == -1 && data.tags.indexOf('advice') == -1) {
+  if (data.tags.indexOf('self-learning') > 0 && data.tags.indexOf('soft-question') == -1 && data.tags.indexOf('career-development') == -1 && data.tags.indexOf('education') == -1 && data.tags.indexOf('advice') == -1) {
     comment = comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*";
     sendComment(qId, comment);
   }
