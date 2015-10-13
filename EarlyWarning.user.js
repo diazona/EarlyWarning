@@ -64,8 +64,6 @@ function processQuestion(data) {
     sendComment(qId, comment);
   }
   else if (special.indexOf(topTag) > -1 ) {
-    report = 'Commented on ' + siteUrl + '/q/' + qId + '\nTop tag: (' + topTag + ')\n' + Date().toString();
-    console.log(report);
     comment = comment + specialComments[special.indexOf(topTag)];
     sendComment(qId, comment);
   }
