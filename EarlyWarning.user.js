@@ -24,7 +24,7 @@ if (window.location.hash === '#bot') {
   var okay = ['analytic-number-theory', 'boolean-algebra', 'coding-theory', 'computability', 'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 
               'laplace-transform', 'linear-programming', 'mathematical-physics', 'model-theory', 'numerical-linear-algebra', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
      // These should not be used on their own
-  var vague = ['book-recommendation', 'contest-math', 'norm', 'reference-request', 'soft-question', 'transformation'];
+  var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
      // These warrant a more specific comment:
   var special = ['analysis', 'computer-science', 'cryptography', 'economics', 'math-history', 'philosophy', 'signal-processing'];
   var specialComments = ["Consider replacing (analysis) with a more specific tag, such as (real-analysis), (complex-analysis), (functional-analysis), (fourier-analysis), (measure-theory), etc",
@@ -89,8 +89,8 @@ function processQuestion(data) {
 
 
 function commentOnTitle(title) {
-  var onTitle = '', badWords = title.match(/anyone|difficult|doubt|easy|hard|help|interesting|please|problem|query|question|someone/ig);
-  if (badWords && title.length <= 60) {
+  var onTitle = '', badWords = title.match(/anyone|difficult|doubt|easy|hard|help|interesting|please|problem|query|question|someone|tough/ig);
+  if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
     onTitle = 'Words such as ' + prepWords + ' do not add information. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer. ';
   }
