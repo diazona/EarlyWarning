@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.5
+// @version     15.10.6
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -19,14 +19,16 @@ if (window.location.hash === '#bot') {
   var qId, topTag, comment;
   var standardComment = 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question.';
   // most popular tags are whitelisted to reduce API requests:  
-  var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics', 'complex-analysis', 'algebra-precalculus', 'geometry',
-                 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus',
-                 'elementary-set-theory'];
+  var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics', 'complex-analysis', 
+                 'algebra-precalculus', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 
+                 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'elementary-set-theory'];
   // These are rare (<1000 questions) but okay: 
-  var okay = ['analytic-number-theory', 'boolean-algebra', 'coding-theory', 'computability', 'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 
-              'laplace-transform', 'linear-programming', 'mathematical-physics', 'model-theory', 'numerical-linear-algebra', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
+  var okay = ['analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'game-theory', 
+              'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 'model-theory', 
+              'numerical-linear-algebra', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
   // These should not be used on their own
-  var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
+  var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
+               'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
   // These may be better off at another site:
   var otherSites = ['computer-science', 'cryptography', 'economics', 'math-history', 'philosophy', 'signal-processing'];   
   var otherSitesComments = ['[CS.SE]', '[Cryptography.SE]', '[Economics.SE]', '[HSM.SE]', '[Philosophy.SE]', '[DSP.SE]'];                            
@@ -67,7 +69,7 @@ function processQuestion(data) {
   else if (data.tags.indexOf('self-learning') > -1 && arraysDisjoint(data.tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice'])) {
     window.setTimeout(sendComment, 5000, comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*");
   }
-  else if (otherSites.indexOf(topTag) > -1 ) {
+  else if (otherSites.indexOf(topTag) > -1 && data.tags.length == 1) {
     window.setTimeout(sendComment, 5000, comment + "If you haven't yet, consider asking at " + otherSitesComments[otherSites.indexOf(topTag)] + " instead.");
   }
   else if (replacing > -1 && arraysDisjoint(data.tags, replacements[replacing])) {
@@ -91,10 +93,18 @@ function processQuestion(data) {
 
 
 function commentOnTitle(title) {
-  var onTitle = '', badWords = title.match(/anyone|difficult|doubt|easy|hard|help|interesting|please|query|question|someone|tough/ig);
+  var onTitle = ''; 
+  var badWords = title.match(/\b(anyone|difficult|doubt|easy|hard|help|interesting|please|query|question|someone|tough)\b/ig); 
+  var badPunctuation = title.match(/\?{2,}/ig);
   if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
-    onTitle = 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer. See also: [How to ask a good question?](http://meta.math.stackexchange.com/q/9959)';
+    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer. ';
+  }
+  if (badPunctuation) {
+    onTitle = onTitle + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
+  }
+  if (onTitle) {
+    onTitle = onTitle + 'See also: [How to ask a good question?](http://meta.math.stackexchange.com/q/9959)';
   }
   return onTitle;
 }
@@ -139,3 +149,4 @@ function arraysDisjoint(arr1, arr2) {
   }
   return true;
 }
+  
