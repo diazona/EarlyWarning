@@ -23,9 +23,9 @@ if (window.location.hash === '#bot') {
                  'algebra-precalculus', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 
                  'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'elementary-set-theory'];
   // These are rare (<1000 questions) but okay: 
-  var okay = ['analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'game-theory', 
-              'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 'model-theory', 
-              'numerical-linear-algebra', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
+  var okay = ['analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages',
+              'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 
+              'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
                'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
