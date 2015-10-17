@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.5
+// @version     15.10.6
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -29,14 +29,10 @@ if (window.location.hash === '#bot') {
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
                'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
-  // These may be better off at another site:
-  // var otherSites = ['computer-science', 'cryptography', 'economics', 'math-history', 'philosophy', 'signal-processing'];   
-  // var otherSitesComments = ['[CS.SE]', '[Cryptography.SE]', '[Economics.SE]', '[HSM.SE]', '[Philosophy.SE]', '[DSP.SE]'];                            
   // Suggest replacements for these: 
-  var replaceTag = ['analysis']; // , 'discrete-mathematics'];  
+  var replaceTag = ['analysis']; 
   var replacements = [['real-analysis', 'complex-analysis', 'functional-analysis', 'fourier-analysis', 'measure-theory', 'calculus-of-variations']];
-                      // ['combinatorics', 'graph-theory', 'algorithms', 'elementary-set-theory', 'induction', 'recurrence-relations', 'propositional-calculus', 'predicate-logic', 'logic', 'probability']];
-  
+
   startup();
 }
 
@@ -69,9 +65,6 @@ function processQuestion(data) {
   else if (data.tags.indexOf('self-learning') > -1 && arraysDisjoint(data.tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice'])) {
     window.setTimeout(sendComment, 5000, comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*");
   }
- // else if (otherSites.indexOf(topTag) > -1 && data.tags.length == 1) {
-//    window.setTimeout(sendComment, 5000, comment + "If you haven't yet, consider asking at " + otherSitesComments[otherSites.indexOf(topTag)] + " instead.");
-//  }
   else if (replacing > -1 && arraysDisjoint(data.tags, replacements[replacing])) {
     window.setTimeout(sendComment, 5000, comment + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].map(function(a) {return '('+a+')';}).join(', ')) + '...';
   }
@@ -98,7 +91,7 @@ function commentOnTitle(title) {
   var badPunctuation = title.match(/\?{2,}/ig);
   if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
-    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer. ';
+    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a formula if needed. ';
   }
   if (badPunctuation) {
     onTitle = onTitle + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
