@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.6
+// @version     15.10.7
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -23,9 +23,9 @@ if (window.location.hash === '#bot') {
                  'algebra-precalculus', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 
                  'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'elementary-set-theory'];
   // These are rare (<1000 questions) but okay: 
-  var okay = ['analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages',
+  var okay = ['automata', 'analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages',
               'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 
-              'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'stochastic-calculus'];  
+              'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'regular-language', 'stochastic-calculus'];  
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
                'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
@@ -97,7 +97,7 @@ function commentOnTitle(title) {
     onTitle = onTitle + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
   }
   if (onTitle) {
-    onTitle = onTitle + 'See also: [How to ask a good question?](http://meta.math.stackexchange.com/q/9959)';
+    onTitle = onTitle + 'See also: [How to ask a good question?](http://meta.math.stackexchange.com/q/9959) ';
   }
   return onTitle;
 }
