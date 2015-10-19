@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.7
+// @version     15.10.8
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -66,7 +66,7 @@ function processQuestion(data) {
     window.setTimeout(sendComment, 5000, comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*");
   }
   else if (replacing > -1 && arraysDisjoint(data.tags, replacements[replacing])) {
-    window.setTimeout(sendComment, 5000, comment + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].map(function(a) {return '('+a+')';}).join(', ')) + '...';
+    window.setTimeout(sendComment, 5000, comment + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].slice(0,3).map(function(a) {return '('+a+')';}).join(', ') + '...');
   }
   else if (vague.indexOf(topTag) > -1 && data.tags.length == 1) {
     window.setTimeout(sendComment, 5000, comment + 'Tag ('+topTag+') should not be the only tag a question has. Please add a tag for a subject area to which the question belongs.');
@@ -89,15 +89,22 @@ function commentOnTitle(title) {
   var onTitle = ''; 
   var badWords = title.match(/\b(anyone|difficult|doubt|easy|hard|help|interesting|please|query|question|someone|tough)\b/ig); 
   var badPunctuation = title.match(/\?{2,}/ig);
+  var tallFormula = title.match(/(\\displaystyle|\\limits)/); 
   if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
-    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a formula if needed. ';
+    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a [formula](//math.stackexchange.com/help/notation) if needed. ';
   }
   if (badPunctuation) {
     onTitle = onTitle + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
   }
-  if (onTitle) {
-    onTitle = onTitle + 'See also: [How to ask a good question?](http://meta.math.stackexchange.com/q/9959) ';
+  if (/\\dfrac/.test(title)) {
+    onTitle = onTitle + 'Please replace `\\dfrac` with `\\frac` in the title; tall formulas in titles break the layout of question lists. ';
+  }
+  else if (tallFormula) {
+    onTitle = onTitle + 'Please remove `' + tallFormula[0] + '` from the title; tall formulas in titles break the layout of question lists. ';
+  }  
+  if (badWords || badPunctuation) {
+    onTitle = onTitle + 'See also: [How to ask a good question?](//meta.math.stackexchange.com/q/9959) ';
   }
   return onTitle;
 }
