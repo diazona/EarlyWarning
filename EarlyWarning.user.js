@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.8
+// @version     15.10.9
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -15,20 +15,22 @@ if (window.location.hash === '#bot') {
   var apiKey = 'vURDLnkgkrLc7qAq)D89tA(('; 
   var site = 'math';
   var siteUrl = 'http://math.stackexchange.com';
-
-  var qId, topTag, comment;
-  var standardComment = 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question.';
+  var qId, topTag, comment, linkGood;
+  
   // most popular tags are whitelisted to reduce API requests:  
   var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics', 'complex-analysis', 
                  'algebra-precalculus', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 
                  'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'elementary-set-theory'];
+  
   // These are rare (<1000 questions) but okay: 
   var okay = ['automata', 'analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages',
               'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 
               'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'regular-language', 'stochastic-calculus'];  
+  
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
                'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
+  
   // Suggest replacements for these: 
   var replaceTag = ['analysis']; 
   var replacements = [['real-analysis', 'complex-analysis', 'functional-analysis', 'fourier-analysis', 'measure-theory', 'calculus-of-variations']];
@@ -56,20 +58,30 @@ function startup() {
 function processQuestion(data) {
   qId = data.id;
   var title = data.body.split('"question-hyperlink">')[1].split('</a>')[0];
-  comment = commentOnTitle(title);
-  topTag = data.tags[0]; 
+  comment = '';
+  linkGood = false; 
+  commentOnTitle(title);
+  window.setTimeout(commentOnTags, 5000, data.tags);  
+}  
+
+
+function commentOnTags(tags) {
+  topTag = tags[0]; 
   var replacing = replaceTag.indexOf(topTag);
   if (popular.indexOf(topTag) > -1 || okay.indexOf(topTag) > -1) {
-    window.setTimeout(sendComment, 5000, comment);    
+    commentOnBody();
   }
-  else if (data.tags.indexOf('self-learning') > -1 && arraysDisjoint(data.tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice'])) {
-    window.setTimeout(sendComment, 5000, comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*");
+  else if (tags.indexOf('self-learning') > -1 && arraysDisjoint(tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice'])) {
+    comment = comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*. ";
+    commentOnBody();
   }
-  else if (replacing > -1 && arraysDisjoint(data.tags, replacements[replacing])) {
-    window.setTimeout(sendComment, 5000, comment + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].slice(0,3).map(function(a) {return '('+a+')';}).join(', ') + '...');
+  else if (replacing > -1 && arraysDisjoint(tags, replacements[replacing])) {
+    comment = comment + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].slice(0,3).map(function(a) {return '('+a+')';}).join(', ') + '... ';
+    commentOnBody();
   }
-  else if (vague.indexOf(topTag) > -1 && data.tags.length == 1) {
-    window.setTimeout(sendComment, 5000, comment + 'Tag ('+topTag+') should not be the only tag a question has. Please add a tag for a subject area to which the question belongs.');
+  else if (vague.indexOf(topTag) > -1 && tags.length == 1) {
+    comment = comment + 'Tag ('+topTag+') should not be the only tag a question has. Please add a tag for a subject area to which the question belongs. ';
+    commentOnBody();
   }
   else {
     var filter = '!GeBU7l0z-7CFD';
@@ -77,46 +89,63 @@ function processQuestion(data) {
     $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
       var count = data.items[0].count;
       if (count > 0 && count < 1500) {  
-        comment = comment + standardComment;
+        comment = comment + 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question. ';
       }
-      window.setTimeout(sendComment, 5000, comment);
+      window.setTimeout(commentOnBody, 5000);
     });
   }
 }
 
 
 function commentOnTitle(title) {
-  var onTitle = ''; 
   var badWords = title.match(/\b(anyone|difficult|doubt|easy|hard|help|interesting|please|query|question|someone|tough)\b/ig); 
   var badPunctuation = title.match(/\?{2,}/ig);
   var tallFormula = title.match(/(\\displaystyle|\\limits)/); 
+  var linkGood = false;
   if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
-    onTitle = onTitle + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a [formula](//math.stackexchange.com/help/notation) if needed. ';
+    comment = comment + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a [formula](//math.stackexchange.com/help/notation) if needed. ';
+    linkGood = true;
   }
   if (badPunctuation) {
-    onTitle = onTitle + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
+    comment = comment + 'Please remove excessive punctuation such as "' + badPunctuation[0] + '". ';
+    linkGood = true;
   }
   if (/\\dfrac/.test(title)) {
-    onTitle = onTitle + 'Please replace `\\dfrac` with `\\frac` in the title; tall formulas in titles break the layout of question lists. ';
+    comment = comment + 'Please replace `\\dfrac` with `\\frac` in the title; tall formulas in titles break the layout of question lists. ';
   }
   else if (tallFormula) {
-    onTitle = onTitle + 'Please remove `' + tallFormula[0] + '` from the title; tall formulas in titles break the layout of question lists. ';
+    comment = comment + 'Please remove `' + tallFormula[0] + '` from the title; tall formulas in titles break the layout of question lists. ';
   }  
-  if (badWords || badPunctuation) {
-    onTitle = onTitle + 'See also: [How to ask a good question?](//meta.math.stackexchange.com/q/9959) ';
-  }
-  return onTitle;
 }
 
 
-function sendComment(text) {
-  if (text.length > 0) {
+function commentOnBody() {
+  var filter = '!GeEyUcJFJO6t)';
+  var request = '//api.stackexchange.com/2.2/questions/' + qId + '?order=desc&sort=activity&site='+site+'&filter='+filter+'&key='+apiKey;
+  $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
+    var body = data.items[0].body;
+    var math = body.match(/&lt;|&gt;|[*^]|\/\d|\b(sin|cos|tan|exp|log|ln|sqrt|pi)\b/g);
+    if (!/\$/.test(body) && math && math.length >= 5) {
+      comment = comment + 'Formulas should be MathJax-formatted: see [math notation guide](//math.stackexchange.com/help/notation). ';
+      linkGood = true;   
+    }
+    if (linkGood) {
+      comment = comment + 'See also: [How to ask a good question?](//meta.math.stackexchange.com/q/9959) ';
+    }
+    sendComment(); 
+  });  
+}
+
+
+function sendComment() {
+  if (comment.length > 0) {
+    comment = comment.slice(0,600);
     var filter = '!.UDq27j4ipL8j8W9';
     var request = 'https://api.stackexchange.com/2.2/posts/'+qId+'/comments/add';
-    var payload = {site: site, key: apiKey, access_token: token, body: text, preview: false, filter: filter};
+    var payload = {site: site, key: apiKey, access_token: token, body: comment, preview: false, filter: filter};
     $.post(request, payload, handle, 'json');
-    var report = 'Comment on ' + siteUrl + '/q/' + qId + '\n' + text; 
+    var report = 'Comment on ' + siteUrl + '/q/' + qId + '\n' + comment; 
     console.log(report);
   }
 }
@@ -149,4 +178,3 @@ function arraysDisjoint(arr1, arr2) {
   }
   return true;
 }
-  
