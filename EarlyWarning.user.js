@@ -5,7 +5,7 @@
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.9
+// @version     15.10.10
 // ==/UserScript==
 
 // runs only if a browser is pointed at the page //stackexchange.com/search#bot
@@ -16,6 +16,7 @@ if (window.location.hash === '#bot') {
   var site = 'math';
   var siteUrl = 'http://math.stackexchange.com';
   var qId, topTag, comment, linkGood;
+  var commented = [];
   
   // most popular tags are whitelisted to reduce API requests:  
   var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'general-topology', 'combinatorics', 'complex-analysis', 
@@ -25,7 +26,7 @@ if (window.location.hash === '#bot') {
   // These are rare (<1000 questions) but okay: 
   var okay = ['automata', 'analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages',
               'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 
-              'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'regular-language', 'stochastic-calculus'];  
+              'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'puzzle', 'regular-language', 'stochastic-calculus'];  
   
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'norm', 'notation', 'proof-strategy', 'proof-verification', 
@@ -61,7 +62,7 @@ function processQuestion(data) {
   comment = '';
   linkGood = false; 
   commentOnTitle(title);
-  window.setTimeout(commentOnTags, 5000, data.tags);  
+  window.setTimeout(commentOnTags, 15000, data.tags);  
 }  
 
 
@@ -71,7 +72,7 @@ function commentOnTags(tags) {
   if (popular.indexOf(topTag) > -1 || okay.indexOf(topTag) > -1) {
     commentOnBody();
   }
-  else if (tags.indexOf('self-learning') > -1 && arraysDisjoint(tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice'])) {
+  else if (tags.indexOf('self-learning') > -1 && arraysDisjoint(tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice', 'book-recommendation', 'reference-request', 'big-list'])) {
     comment = comment + "Please don't use (self-learning) tag just because you were self-studying when you came across this question. This tag is only for questions *about the process of self-studying*. ";
     commentOnBody();
   }
@@ -91,20 +92,19 @@ function commentOnTags(tags) {
       if (count > 0 && count < 1500) {  
         comment = comment + 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question. ';
       }
-      window.setTimeout(commentOnBody, 5000);
+      commentOnBody();
     });
   }
 }
 
 
 function commentOnTitle(title) {
-  var badWords = title.match(/\b(anyone|difficult|doubt|easy|hard|help|interesting|please|query|question|someone|tough)\b/ig); 
+  var badWords = title.match(/\b(anyone|difficult|doubt|hard|help|interesting|please|query|question|someone|task|tough)\b/ig); 
   var badPunctuation = title.match(/\?{2,}/ig);
-  var tallFormula = title.match(/(\\displaystyle|\\limits)/); 
   var linkGood = false;
   if (badWords && title.length <= 70) {
     var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
-    comment = comment + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a [formula](//math.stackexchange.com/help/notation) if needed. ';
+    comment = comment + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a formula if needed. ';
     linkGood = true;
   }
   if (badPunctuation) {
@@ -114,8 +114,11 @@ function commentOnTitle(title) {
   if (/\\dfrac/.test(title)) {
     comment = comment + 'Please replace `\\dfrac` with `\\frac` in the title; tall formulas in titles break the layout of question lists. ';
   }
-  else if (tallFormula) {
-    comment = comment + 'Please remove `' + tallFormula[0] + '` from the title; tall formulas in titles break the layout of question lists. ';
+  else if (/\\displaystyle/.test(title)) {
+    comment = comment + 'Please remove `\\displaystyle` from the title; tall formulas in titles break the layout of question lists. ';
+  }  
+  else if (/(\\int|\\sum)\s*\\limits/.test(title)) {
+    comment = comment + 'Please remove `\\limits` from the title; tall formulas in titles break the layout of question lists. ';
   }  
 }
 
@@ -139,13 +142,14 @@ function commentOnBody() {
 
 
 function sendComment() {
-  if (comment.length > 0) {
+  if (comment.length > 0 && commented.indexOf(qId) == -1) {
+    commented.push(qId);
     comment = comment.slice(0,600);
     var filter = '!.UDq27j4ipL8j8W9';
     var request = 'https://api.stackexchange.com/2.2/posts/'+qId+'/comments/add';
     var payload = {site: site, key: apiKey, access_token: token, body: comment, preview: false, filter: filter};
     $.post(request, payload, handle, 'json');
-    var report = 'Comment on ' + siteUrl + '/q/' + qId + '\n' + comment; 
+    var report = commented.length + '. Comment on ' + siteUrl + '/q/' + qId + '\n' + comment; 
     console.log(report);
   }
 }
@@ -178,3 +182,4 @@ function arraysDisjoint(arr1, arr2) {
   }
   return true;
 }
+  
