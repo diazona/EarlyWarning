@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name        Early Warning
 // @namespace   https://github.com/normalhuman/EarlyWarning
-// @description Posts temporary comments to (Math.SE) questions with problematic titles or tags 
+// @description Posts temporary comments to (Math.SE) questions, suggesting improvements to title, text, or tags 
 // @match       *://stackexchange.com/search
 // @grant       none
 // @run-at      document-end
-// @version     15.10.11
+// @version     15.10.12
 // ==/UserScript==
 
 // runs only if the browser is pointed at //stackexchange.com/search#bot
@@ -15,7 +15,7 @@ if (window.location.hash === '#bot') {
   var apiKey = 'vURDLnkgkrLc7qAq)D89tA(('; 
   var site = 'math';
   var siteUrl = 'http://math.stackexchange.com';
-  var commented = [];
+  var commented = [], maxUser = 0;
   
   // Tags with 1500+ questions: 
   var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'integration', 'sequences-and-series', 'general-topology', 'combinatorics', 'matrices', 'complex-analysis', 'group-theory', 'algebra-precalculus', 'analysis', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'functions', 'discrete-mathematics', 'elementary-set-theory', 'trigonometry', 'algebraic-geometry', 'differential-geometry', 'derivatives', 'inequality', 'reference-request', 'logic', 'polynomials', 'graph-theory', 'probability-distributions', 'ring-theory', 'pde', 'algebraic-topology', 'proof-strategy', 'convergence', 'commutative-algebra', 'optimization', 'proof-verification', 'vector-spaces', 'definite-integrals', 'soft-question', 'complex-numbers', 'algorithms', 'summation', 'metric-spaces', 'stochastic-processes', 'finite-groups', 'numerical-methods', 'notation', 'category-theory', 'prime-numbers', 'fourier-analysis', 'field-theory', 'proof-writing', 'continuity', 'eigenvalues-eigenvectors', 'permutations', 'set-theory', 'induction', 'modular-arithmetic', 'logarithms', 'recurrence-relations', 'terminology', 'modules', 'representation-theory', 'operator-theory', 'asymptotics', 'arithmetic', 'random-variables', 'algebraic-number-theory', 'manifolds', 'power-series', 'convex-analysis', 'computer-science', 'hilbert-spaces', 'galois-theory', 'binomial-coefficients', 'improper-integrals', 'differential-topology', 'definition', 'contest-math', 'vectors', 'banach-spaces', 'self-learning', 'special-functions', 'divisibility', 'exponential-function', 'taylor-expansion', 'lie-groups', 'diophantine-equations', 'lebesgue-integral', 'normal-distribution', 'fourier-series', 'ideals', 'dynamical-systems', 'euclidean-geometry', 'physics', 'lie-algebras', 'determinant', 'compactness', 'recreational-mathematics', 'analytic-geometry', 'roots', 'systems-of-equations', 'norm', 'circle', 'riemannian-geometry', 'relations', 'education', 'examples-counterexamples', 'graphing-functions', 'intuition', 'sobolev-spaces', 'indefinite-integrals', 'triangle', 'convex-optimization', 'exponentiation', 'markov-chains', 'partial-derivative', 'finite-fields'];
@@ -28,7 +28,7 @@ if (window.location.hash === '#bot') {
   
   // Suggest replacements for these: 
   var replaceTag = ['analysis']; 
-  var replacements = [['real-analysis', 'complex-analysis', 'functional-analysis', 'fourier-analysis', 'measure-theory', 'calculus-of-variations']];
+  var replacements = [['real-analysis', 'complex-analysis', 'functional-analysis', 'fourier-analysis', 'measure-theory', 'calculus-of-variations', 'calculus', 'multivariable-calculus']];
   var replaceText = ['Consider replacing (analysis) with a more specific tag for the relevant branch of analysis. ']; 
   
   startup();
@@ -52,7 +52,7 @@ function startup() {
 
 
 function processQuestion(id) {
-  var filter = '!w-1xUscA3.XwxFFOU4';
+  var filter = '!YOKGOFluQgi8nEi-oxAb5iZ*Wh';
   var request = '//api.stackexchange.com/2.2/questions/' + id + '?order=desc&sort=activity&site='+site+'&filter='+filter+'&key='+apiKey;
   $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
     var postData = data.items[0];
@@ -70,7 +70,17 @@ function processQuestion(id) {
       if (comment.linkGood) {
         comment.text = comment.text + 'See also: [How to ask a good question?](//meta.math.stackexchange.com/q/9959) ';
       }
+      var uId = 0;
+      if (postData.owner.user_id) {
+        uId = parseInt(postData.owner.user_id, 10);
+      }
+      if (comment.text.length > 0 && postData.owner.reputation == 1 && uId > maxUser) {
+        comment.text = 'Welcome to Math.SE, ' + postData.owner.display_name + '. ' + comment.text;
+      }
       sendComment(comment); 
+      if (uId > maxUser) {
+        maxUser = uId; 
+      }
     }
   });
 }
@@ -115,7 +125,7 @@ function commentOnBody(body, comment) {
   var math = body.match(/&lt;|&gt;|[*^+_]|\/\d|\b(sin|cos|tan|exp|log|ln|sqrt|pi)\b/g);
   if (!/\$/.test(body) && math && math.length >= 5) {
     comment.text = comment.text + 'Formulas should be MathJax-formatted: see [math notation guide](//math.stackexchange.com/help/notation). ';
-    comment.linkGood = true;   
+    comment.linkGood = true;
   }
   var punctuationMatch = body.match(/\?{2,}/ig);
   if (!comment.badPunctuation && punctuationMatch) {
