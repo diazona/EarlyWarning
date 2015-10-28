@@ -21,7 +21,7 @@ if (window.location.hash === '#bot') {
   var popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'integration', 'sequences-and-series', 'general-topology', 'combinatorics', 'matrices', 'complex-analysis', 'group-theory', 'algebra-precalculus', 'analysis', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'functions', 'discrete-mathematics', 'elementary-set-theory', 'trigonometry', 'algebraic-geometry', 'differential-geometry', 'derivatives', 'inequality', 'reference-request', 'logic', 'polynomials', 'graph-theory', 'probability-distributions', 'ring-theory', 'pde', 'algebraic-topology', 'proof-strategy', 'convergence', 'commutative-algebra', 'optimization', 'proof-verification', 'vector-spaces', 'definite-integrals', 'soft-question', 'complex-numbers', 'algorithms', 'summation', 'metric-spaces', 'stochastic-processes', 'finite-groups', 'numerical-methods', 'notation', 'category-theory', 'prime-numbers', 'fourier-analysis', 'field-theory', 'proof-writing', 'continuity', 'eigenvalues-eigenvectors', 'permutations', 'set-theory', 'induction', 'modular-arithmetic', 'logarithms', 'recurrence-relations', 'terminology', 'modules', 'representation-theory', 'operator-theory', 'asymptotics', 'arithmetic', 'random-variables', 'algebraic-number-theory', 'manifolds', 'power-series', 'convex-analysis', 'computer-science', 'hilbert-spaces', 'galois-theory', 'binomial-coefficients', 'improper-integrals', 'differential-topology', 'definition', 'contest-math', 'vectors', 'banach-spaces', 'self-learning', 'special-functions', 'divisibility', 'exponential-function', 'taylor-expansion', 'lie-groups', 'diophantine-equations', 'lebesgue-integral', 'normal-distribution', 'fourier-series', 'ideals', 'dynamical-systems', 'euclidean-geometry', 'physics', 'lie-algebras', 'determinant', 'compactness', 'recreational-mathematics', 'analytic-geometry', 'roots', 'systems-of-equations', 'norm', 'circle', 'riemannian-geometry', 'relations', 'education', 'examples-counterexamples', 'graphing-functions', 'intuition', 'sobolev-spaces', 'indefinite-integrals', 'triangle', 'convex-optimization', 'exponentiation', 'markov-chains', 'partial-derivative', 'finite-fields'];
 
   // Okay as a top tag: either popular or otherwise sufficient
-  var okay = popular.concat(['automata', 'analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'formal-languages', 'game-theory', 'harmonic-analysis', 'homological-algebra', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'mathematical-physics', 'model-theory', 'numerical-linear-algebra', 'order-theory', 'predicate-logic', 'propositional-calculus', 'puzzle', 'regular-language', 'stochastic-calculus']);  
+  var okay = popular.concat(['automata', 'analytic-number-theory', 'boolean-algebra', 'calculus-of-variations', 'coding-theory', 'computability', 'complex-geometry', 'descriptive-statistics', 'finance', 'formal-languages', 'game-theory', 'harmonic-analysis', 'homological-algebra', 'homology-cohomology', 'homotopy-theory', 'laplace-transform', 'linear-programming', 'math-history', 'mathematical-physics', 'model-theory', 'numerical-linear-algebra', 'order-theory', 'percentages', 'predicate-logic', 'propositional-calculus', 'puzzle', 'regular-language', 'stochastic-calculus']);  
   
   // These should not be used on their own
   var vague = ['advice', 'big-list', 'book-recommendation', 'contest-math', 'definition', 'examples-counterexamples', 'norm', 'notation', 'proof-strategy', 'proof-verification', 'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
@@ -29,7 +29,8 @@ if (window.location.hash === '#bot') {
   // Suggest replacements for these: 
   var replaceTag = ['analysis']; 
   var replacements = [['real-analysis', 'complex-analysis', 'functional-analysis', 'fourier-analysis', 'measure-theory', 'calculus-of-variations']];
-
+  var replaceText = ['Consider replacing (analysis) with a more specific tag for the relevant branch of analysis. ']; 
+  
   startup();
 }
 
@@ -76,7 +77,7 @@ function processQuestion(id) {
 
 
 function commentOnTitle(title, comment) {
-  var badWords = title.match(/\b(anyone|difficult|doubt|hard|help|interesting|please|query|question|someone|task|tough)\b/ig); 
+  var badWords = title.match(/\b(anyone|difficult|doubt|hard|help|interesting|please|query|question|someone|struggling|stuck|task|tough)\b/ig); 
   var punctuationMatch = title.match(/\?{2,}/ig);
   var tallReasons = []; 
   if (badWords && title.length <= 70) {
@@ -111,14 +112,14 @@ function commentOnTitle(title, comment) {
 function commentOnBody(body, comment) {
   body = body.replace(/<pre>[\s\S]*?<\/pre>/g, "pre");
   body = body.replace(/<code>[\s\S]*?<\/code>/g, "code");
-  var math = body.match(/&lt;|&gt;|[*^]|\/\d|\b(sin|cos|tan|exp|log|ln|sqrt|pi)\b/g);
+  var math = body.match(/&lt;|&gt;|[*^+_]|\/\d|\b(sin|cos|tan|exp|log|ln|sqrt|pi)\b/g);
   if (!/\$/.test(body) && math && math.length >= 5) {
     comment.text = comment.text + 'Formulas should be MathJax-formatted: see [math notation guide](//math.stackexchange.com/help/notation). ';
     comment.linkGood = true;   
   }
   var punctuationMatch = body.match(/\?{2,}/ig);
   if (!comment.badPunctuation && punctuationMatch) {
-    comment.text = comment.text + 'Please remove excessive punctuation such as "' + punctuationMatch[0] + '". ';
+    comment.text = comment.text + 'Please avoid excessive punctuation such as "' + punctuationMatch[0] + '". ';
     comment.linkGood = true;
     comment.badPunctuation = true; 
   }
@@ -133,13 +134,13 @@ function commentOnTags(tags, comment) {
     comment.text = comment.text + "Please don't use (self-learning) tag just because you were self-studying. This tag is only for questions *about the process of self-studying*. ";
   }
   if (replacing > -1 && arraysDisjoint(tags, replacements[replacing])) {
-    comment.text = comment.text + 'Consider replacing (' + topTag + ') with a more specific tag, such as ' + replacements[replacing].slice(0,3).map(function(a) {return '('+a+')';}).join(', ') + '... ';
+    comment.text = comment.text + replaceText[replacing];
   } 
   else if (vague.indexOf(topTag) > -1 && tags.length == 1) {
     comment.text = comment.text + 'Tag ('+topTag+') should not be the only tag a question has. Please add a tag for a subject area to which the question belongs. ';
   }
   else if (okay.indexOf(topTag) === -1) {
-    comment.text = comment.text + 'Consider adding a tag for a broader subject area to which the question belongs. This will improve the visibility of your question. ';
+    comment.text = comment.text + 'Consider adding a [tag for a broader subject area](/tags) to which the question belongs. This will improve the visibility of your question. ';
   }
   return comment;
 }
