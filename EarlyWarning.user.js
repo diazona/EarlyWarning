@@ -2,13 +2,13 @@
 // @name        Early Warning
 // @namespace   https://github.com/normalhuman/EarlyWarning
 // @description Posts temporary comments to (Math.SE) questions, suggesting improvements to title, text, or tags 
-// @match       *://stackexchange.com/search
+// @match       *://chat.stackexchange.com/rooms/30985/normal-chatroom
 // @grant       none
 // @run-at      document-end
-// @version     15.10.14
+// @version     15.11.1
 // ==/UserScript==
 
-// runs only if the browser is pointed at //stackexchange.com/search#bot
+// runs only if the browser is pointed at ://chat.stackexchange.com/rooms/30985/normal-chatroom#bot
 
 if (window.location.hash === '#bot') {
   var Token = 'ACCESS_TOKEN';    // get access token from the url hash at https://stackexchange.com/oauth/dialog?client_id=5748&scope=no_expiry,write_access&redirect_uri=https://stackexchange.com/
@@ -58,7 +58,7 @@ function processQuestion(id) {
   $.ajax({url: request, dataType: 'json', method: 'GET'}).done(function(data) {
     var postData = data.items[0];
     if (!postData) {
-      report = 'Failed to fetch:\n' + data;
+      report = 'Failed to fetch:\n' + JSON.stringify(data);
       console.log(report); 
     }
     else {
@@ -154,7 +154,7 @@ function sendComment(comment) {
     Commented.push(comment.postId);
     PostId = comment.postId;
     var commentToPost = comment.text.slice(0,600);
-    var filter = '!.UDq27j4ipL8j8W9';
+    var filter = '!w-*zFA1*5SWwmYvqNr';
     var request = 'https://api.stackexchange.com/2.2/posts/' + comment.postId + '/comments/add';
     var payload = {site: Site, key: ApiKey, access_Token: Token, body: commentToPost, preview: false, filter: filter};
     $.post(request, payload, handle, 'json');
@@ -172,6 +172,7 @@ function handle(data) {
   }
   else {
     window.setTimeout(deleteComment, 300000, data.items[0].comment_id, PostId);
+    window.setTimeout(postToChat, 10000, data.items[0].link);
   }
 }
 
@@ -198,6 +199,13 @@ function deleteComment(cId, qId) {
   });
 }
 
+
+function postToChat(link) {
+  if (link) {
+    document.getElementById('input').value = link;
+    document.getElementById('sayit-button').click(); 
+  }
+}
 
 function arraysDisjoint(arr1, arr2) {
   for (var i = 0; i < arr1.length; i++) {
