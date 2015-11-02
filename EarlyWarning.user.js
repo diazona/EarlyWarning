@@ -5,7 +5,7 @@
 // @match       *://chat.stackexchange.com/rooms/30985/normal-chatroom
 // @grant       none
 // @run-at      document-end
-// @version     15.11.1
+// @version     15.11.2
 // ==/UserScript==
 
 // runs only if the browser is pointed at ://chat.stackexchange.com/rooms/30985/normal-chatroom#bot
@@ -121,7 +121,7 @@ function commentOnBody(body, comment) {
   body = body.replace(/<code>[\s\S]*?<\/code>/g, "code");
   body = body.replace(/<a[\s\S]*?<\/a>/g, "link");
   var math = body.match(/&lt;|&gt;|[*^+_]|\/\d|\b(sin|cos|tan|exp|log|ln|sqrt|pi)\b/g);
-  if (!/\$/.test(body) && math && math.length >= 5) {
+  if (!/\$|\\begin|\\\[/.test(body) && math && math.length >= 5) {
     comment.text = comment.text + 'This site uses MathJax for formulas: see [math notation guide](//math.stackexchange.com/help/notation). ';
     comment.linkGood = true;
   }
@@ -130,7 +130,7 @@ function commentOnBody(body, comment) {
 
 
 function commentOnTags(tags, comment) {
-  var obscureTags = ['Consider adding a [tag for a broader subject area](/tags) to which the question belongs. This will improve the visibility of your question. ', 'Questions tend to get more attention when they have a [tag for a broad area of mathematics](/tags) relevant to the question. '];  
+  var obscureTags = ['Consider adding a tag for a broader subject area to which the question belongs. ', 'Questions tend to get more attention when they have a tag for a broad area of mathematics relevant to the question. '];  
   var topTag = tags[0]; 
   var replacing = ReplaceTag.indexOf(topTag);
   if (tags.indexOf('self-learning') > -1 && arraysDisjoint(tags, ['soft-question', 'career-development', 'education', 'teaching', 'advice', 'book-recommendation', 'reference-request', 'big-list'])) {
@@ -143,7 +143,7 @@ function commentOnTags(tags, comment) {
     comment.text = comment.text + 'Tag ('+topTag+') should not be the only tag a question has. Please add a tag for a subject area to which the question belongs. ';
   }
   else if (Okay.indexOf(topTag) === -1) {
-    comment.text = comment.text + obscureTags[Math.floor(obscureTags.length*Math.random())];
+    comment.text = comment.text + obscureTags[Math.floor(obscureTags.length*Math.random())] + 'Some of [these tags](//math.stackexchange.com/tags/'+topTag+'/info#h-related-tags) might fit. ';
   }
   return comment;
 }
