@@ -5,7 +5,7 @@
 // @match       *://chat.stackexchange.com/rooms/30985/normal-chatroom
 // @grant       none
 // @run-at      document-end
-// @version     15.11.4
+// @version     15.11.5
 // ==/UserScript==
 
 // runs only if the browser is pointed at ://chat.stackexchange.com/rooms/30985/normal-chatroom#bot
@@ -16,7 +16,7 @@ if (window.location.hash === '#bot') {
   var ApiKey = 'vURDLnkgkrLc7qAq)D89tA(('; 
   var Site = 'math';
   var SiteUrl = 'http://math.stackexchange.com';
-  var Commented = [], MaxUser = 0, CommentId, PostId, GlobalComment;
+  var Commented = [], MaxUser = 0, CommentId, PostId, GlobalComment, LastChatMessage = 0;
   
   // Tags with 500+ questions: 
   var Popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'integration', 'sequences-and-series', 'general-topology', 'combinatorics', 'matrices', 'complex-analysis', 'group-theory', 'algebra-precalculus', 'analysis', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'functions', 'discrete-mathematics', 'elementary-set-theory', 'trigonometry', 'algebraic-geometry', 'differential-geometry', 'derivatives', 'inequality', 'reference-request', 'logic', 'polynomials', 'graph-theory', 'probability-distributions', 'ring-theory', 'pde', 'algebraic-topology', 'proof-strategy', 'convergence', 'commutative-algebra', 'optimization', 'proof-verification', 'vector-spaces', 'definite-integrals', 'soft-question', 'complex-numbers', 'algorithms', 'summation', 'metric-spaces', 'stochastic-processes', 'finite-groups', 'numerical-methods', 'notation', 'category-theory', 'prime-numbers', 'fourier-analysis', 'field-theory', 'proof-writing', 'continuity', 'eigenvalues-eigenvectors', 'permutations', 'induction', 'set-theory', 'modular-arithmetic', 'logarithms', 'recurrence-relations', 'terminology', 'modules', 'representation-theory', 'operator-theory', 'asymptotics', 'arithmetic', 'random-variables', 'manifolds', 'algebraic-number-theory', 'power-series', 'convex-analysis', 'computer-science', 'hilbert-spaces', 'galois-theory', 'binomial-coefficients', 'improper-integrals', 'differential-topology', 'definition', 'contest-math', 'vectors', 'banach-spaces', 'self-learning', 'special-functions', 'exponential-function', 'divisibility', 'taylor-expansion', 'lie-groups', 'diophantine-equations', 'lebesgue-integral', 'fourier-series', 'normal-distribution', 'ideals', 'euclidean-geometry', 'dynamical-systems', 'physics', 'lie-algebras', 'determinant', 'compactness', 'analytic-geometry', 'recreational-mathematics', 'roots', 'systems-of-equations', 'riemannian-geometry', 'norm', 'circle', 'relations', 'education', 'examples-counterexamples', 'graphing-functions', 'intuition', 'sobolev-spaces', 'indefinite-integrals', 'triangle', 'convex-optimization', 'exponentiation', 'markov-chains', 'partial-derivative', 'combinations', 'finite-fields', 'lebesgue-measure', 'inverse', 'homological-algebra', 'problem-solving', 'approximation', 'vector-analysis', 'stochastic-calculus', 'expectation', 'transformation', 'generating-functions', 'puzzle', 'matlab', 'normed-spaces', 'order-theory', 'propositional-calculus', 'laplace-transform', 'linear-programming', 'math-history', 'homology-cohomology', 'cardinals', 'computational-complexity', 'mathematical-physics', 'solution-verification', 'inner-product-space', 'conic-sections', 'lp-spaces', 'model-theory', 'analytic-number-theory', 'contour-integration', 'tensor-products', 'abelian-groups', 'brownian-motion', 'functional-equations', 'homotopy-theory', 'factorial', 'factoring', 'extension-field', 'quadratics', 'game-theory', 'coordinate-systems', 'numerical-linear-algebra', 'closed-form', '3d', 'boolean-algebra', 'algebraic-curves', 'uniform-convergence', 'predicate-logic', 'computability', 'statistical-inference', 'distribution-theory', 'regression', 'equivalence-relations', 'rotations', 'surfaces', 'elliptic-curves', 'calculus-of-variations', 'polar-coordinates', 'conditional-probability', 'infinity', 'big-list', 'matrix-equations', 'axiom-of-choice', 'operator-algebras', 'connectedness', 'spectral-theory', 'book-recommendation', 'parametric', 'linear-transformations', 'differential-forms', 'fractions', 'congruences', 'harmonic-analysis', 'convolution', 'finance', 'random', 'tensors', 'real-numbers', 'volume', 'gamma-function', 'absolute-value', 'fibonacci-numbers', 'signal-processing', 'martingales', 'complex-geometry', 'cryptography', 'interpolation', 'irreducible-polynomials', 'riemann-zeta', 'sheaf-theory', 'nonlinear-optimization', 'area', 'residue-calculus', 'topological-groups', 'radicals', 'irrational-numbers', 'formal-languages', 'projective-geometry', 'alternative-proof', 'c-star-algebras', 'mathematical-modeling', 'first-order-logic', 'automata', 'vector-bundles', 'smooth-manifolds', 'partitions', 'recursion', 'stochastic-integrals', 'riemann-surfaces', 'symmetric-groups', 'schemes', 'quadratic-forms', 'ordinals', 'divergent-series', 'coding-theory', 'information-theory', 'lagrange-multiplier', 'recursive-algorithms', 'math-software', 'markov-process', 'group-actions', 'trees', 'harmonic-functions', 'rational-numbers', 'economics', 'machine-learning', 'applications', 'random-walk', 'banach-algebras', 'limsup-and-liminf', 'cyclic-groups', 'plane-curves', 'binary', 'matrix-calculus', 'hyperbolic-geometry', 'average', 'weak-convergence', 'diagonalization', 'fixed-point-theorems', 'p-adic-number-theory', 'products', 'computational-geometry', 'pi', 'standard-deviation', 'dice', 'topological-vector-spaces', 'epsilon-delta', 'lattice-orders', 'prime-factorization', 'noncommutative-algebra', 'bayesian', 'control-theory'];
@@ -33,7 +33,7 @@ if (window.location.hash === '#bot') {
   var ReplaceText = ['Consider replacing (analysis) with a more specific tag for the relevant branch of analysis. ']; 
   
   // Post in chat when all these tags are present, even if not commenting
-  var ManualReview = [['proof-strategy'], ['proof-verification'], ['proof-explanation'], ['proof-writing'], ['theorem-provers'], ['self-learning'], ['pde', 'differential-equations']]; 
+  var ManualReview = [['proof-strategy'], ['proof-verification'], ['proof-explanation'], ['proof-writing'], ['theorem-provers'], ['self-learning'], ['stability-theory'], ['pde', 'differential-equations']]; 
 
   startup();
 }
@@ -69,7 +69,7 @@ function processQuestion(id) {
       var comment = {};
       comment.postId = postData.question_id; 
       comment.text = '';
-      comment.chatMessage = '';
+      comment.chat = '';
       comment = commentOnTitle(postData.title, comment);
       comment = commentOnBody(postData.body, comment);
       comment = commentOnTags(postData.tags, comment);
@@ -97,9 +97,10 @@ function processQuestion(id) {
 
 function commentOnTitle(title, comment) {
   var badWords = title.match(/\b(anyone|challenging|difficult|doubt|help|interesting|please|query|question|someone|struggling|stuck|task|tough)\b/ig); 
-  var tallReasons = []; 
+  var suspectWords = title.match(/(advanced|basic|beautiful|beginning|confus|easy|elegant|elementary|exercise|\bgre\b|hard|homework|\bim\b|problem|\bsat\b|stump|tricky|troubl|ugly|urgent|\bvery|weird|wrong|!\?|\?\?|pmatrix|\\limits|\\begin|\b[0-9]$)/ig);  
+  var tallReasons = [], prepWords; 
   if (badWords && title.length < 60) {
-    var prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
+    prepWords = '*' + badWords.join(', ').toLowerCase() + '*';
     comment.text = comment.text + 'Words such as ' + prepWords + ' do not add information to titles. Please [edit] the title so that it better describes the specifics of your question. Do not hesitate to make it longer or include a formula if needed. ';
     comment.linkGood = true;
   }
@@ -115,8 +116,10 @@ function commentOnTitle(title, comment) {
   if (/^\$[^$]*\$$/.test(title)) {
     comment.text = comment.text + 'A title should not be all-MathJax; having some plain text helps with search and navigation. ';
   }
-  if (/\?{2,}/.test(title)) {
-    comment.chatMessage = comment.chatMessage + 'Title punctuation. ';
+   
+  if (badWords || suspectWords) {
+    prepWords = [].concat(badWords).concat(suspectWords).filter(function(a) {return a;}).join(', ').toLowerCase();
+    comment.chat = comment.chat + 'Title contains *' + prepWords + '*. ';
   }
   return comment;
 }
@@ -133,10 +136,10 @@ function commentOnBody(body, comment) {
     comment.waitLonger = true; 
   }
   if (body.length < 200) {
-    comment.chatMessage = comment.chatMessage + 'Short question. ';
+    comment.chat = comment.chat + 'Short question. ';
   }
   if (/\w\?{2,}/.test(body)) {
-    comment.chatMessage = comment.chatMessage + 'Body punctuation. ';
+    comment.chat = comment.chat + 'Body punctuation. ';
   }  
   return comment;
 }
@@ -160,7 +163,7 @@ function commentOnTags(tags, comment) {
   }
   for (var i = 0; i < ManualReview.length; i++) {
     if (arrayContained(ManualReview[i], tags)) {
-      comment.chatMessage = comment.chatMessage + 'Tagged ' + ManualReview[i].join(', ') + '. ';
+      comment.chat = comment.chat + 'Tagged ' + ManualReview[i].join(', ') + '. ';
       break;
     }
   }
@@ -184,9 +187,9 @@ function sendComment(comment) {
     var report = Commented.length + '. Comment on ' + SiteUrl + '/q/' + comment.postId + '\n' + commentToPost; 
     console.log(report);
   }
-  else if (comment.chatMessage.length > 0) {
+  else if (comment.chat.length > 0) {
     postToChat(SiteUrl + '/q/' + comment.postId);
-    window.setTimeout(postToChat, 3000, comment.chatMessage); 
+    window.setTimeout(postToChat, 3000, comment.chat); 
   }
 }
 
@@ -233,9 +236,13 @@ function deleteComment(cId, qId) {
 
 
 function postToChat(msg) {
-  if (msg) {
+  if (Date.now() - LastChatMessage < 3000) {
+    window.setTimeout(postToChat, 3000, msg); 
+  }
+  else if (msg) {
     document.getElementById('input').value = msg;
     document.getElementById('sayit-button').click(); 
+    LastChatMessage = Date.now();
   }
 }
 
