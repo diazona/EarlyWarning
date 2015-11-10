@@ -9,7 +9,15 @@ Some of the issues detected by the bot:
 * all tags used are relatively obscure
 * math formulas are not formatted using MathJax syntax
 
-If a problem is detected, a temporarily comment is created to encourage the author to edit. The comment is deleted after 5 minutes. 
+If a problem is detected, a temporarily comment is created to encourage the author to edit. The comment is deleted after 5 minutes (or 10, when MathJax reference is posted). 
+
+Some of the less obvious issues are handled by posting a message in chat for manual review: 
+
+* very short question body
+* poor style of question title
+* an often-misused tag
+
+---
 
 Motivated by the feature request [A warning to those who use only rare/new tags](http://meta.math.stackexchange.com/q/21669); consequently, the logic of tag handling is specific to Math site. Also, MathJax warnings would make sense only on MathJax-enabled sites. 
 
