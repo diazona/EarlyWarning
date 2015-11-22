@@ -5,7 +5,7 @@
 // @match       *://chat.stackexchange.com/rooms/30985/normal-chatroom
 // @grant       none
 // @run-at      document-end
-// @version     15.11.9
+// @version     15.11.10
 // ==/UserScript==
 
 // runs only if the browser is pointed at ://chat.stackexchange.com/rooms/30985/normal-chatroom#bot
@@ -22,7 +22,7 @@ if (window.location.hash === '#bot') {
   var Popular = ['calculus', 'real-analysis', 'linear-algebra', 'probability', 'abstract-algebra', 'integration', 'sequences-and-series', 'general-topology', 'combinatorics', 'matrices', 'complex-analysis', 'group-theory', 'algebra-precalculus', 'analysis', 'geometry', 'functional-analysis', 'number-theory', 'differential-equations', 'elementary-number-theory', 'limits', 'probability-theory', 'measure-theory', 'statistics', 'multivariable-calculus', 'functions', 'discrete-mathematics', 'elementary-set-theory', 'trigonometry', 'algebraic-geometry', 'differential-geometry', 'derivatives', 'inequality', 'reference-request', 'logic', 'polynomials', 'graph-theory', 'probability-distributions', 'ring-theory', 'pde', 'algebraic-topology', 'proof-strategy', 'convergence', 'commutative-algebra', 'optimization', 'proof-verification', 'vector-spaces', 'definite-integrals', 'soft-question', 'complex-numbers', 'algorithms', 'summation', 'metric-spaces', 'stochastic-processes', 'finite-groups', 'numerical-methods', 'notation', 'category-theory', 'prime-numbers', 'fourier-analysis', 'field-theory', 'proof-writing', 'continuity', 'eigenvalues-eigenvectors', 'permutations', 'induction', 'set-theory', 'modular-arithmetic', 'logarithms', 'recurrence-relations', 'terminology', 'modules', 'representation-theory', 'operator-theory', 'asymptotics', 'arithmetic', 'random-variables', 'manifolds', 'algebraic-number-theory', 'power-series', 'convex-analysis', 'computer-science', 'hilbert-spaces', 'galois-theory', 'binomial-coefficients', 'improper-integrals', 'differential-topology', 'definition', 'contest-math', 'vectors', 'banach-spaces', 'self-learning', 'special-functions', 'exponential-function', 'divisibility', 'taylor-expansion', 'lie-groups', 'diophantine-equations', 'lebesgue-integral', 'fourier-series', 'normal-distribution', 'ideals', 'euclidean-geometry', 'dynamical-systems', 'physics', 'lie-algebras', 'determinant', 'compactness', 'analytic-geometry', 'recreational-mathematics', 'roots', 'systems-of-equations', 'riemannian-geometry', 'norm', 'circle', 'relations', 'education', 'examples-counterexamples', 'graphing-functions', 'intuition', 'sobolev-spaces', 'indefinite-integrals', 'triangle', 'convex-optimization', 'exponentiation', 'markov-chains', 'partial-derivative', 'combinations', 'finite-fields', 'lebesgue-measure', 'inverse', 'homological-algebra', 'problem-solving', 'approximation', 'vector-analysis', 'stochastic-calculus', 'expectation', 'transformation', 'generating-functions', 'puzzle', 'matlab', 'normed-spaces', 'order-theory', 'propositional-calculus', 'laplace-transform', 'linear-programming', 'math-history', 'homology-cohomology', 'cardinals', 'computational-complexity', 'mathematical-physics', 'solution-verification', 'inner-product-space', 'conic-sections', 'lp-spaces', 'model-theory', 'analytic-number-theory', 'contour-integration', 'tensor-products', 'abelian-groups', 'brownian-motion', 'functional-equations', 'homotopy-theory', 'factorial', 'factoring', 'extension-field', 'quadratics', 'game-theory', 'coordinate-systems', 'numerical-linear-algebra', 'closed-form', '3d', 'boolean-algebra', 'algebraic-curves', 'uniform-convergence', 'predicate-logic', 'computability', 'statistical-inference', 'distribution-theory', 'regression', 'equivalence-relations', 'rotations', 'surfaces', 'elliptic-curves', 'calculus-of-variations', 'polar-coordinates', 'conditional-probability', 'infinity', 'big-list', 'matrix-equations', 'axiom-of-choice', 'operator-algebras', 'connectedness', 'spectral-theory', 'book-recommendation', 'parametric', 'linear-transformations', 'differential-forms', 'fractions', 'congruences', 'harmonic-analysis', 'convolution', 'finance', 'random', 'tensors', 'real-numbers', 'volume', 'gamma-function', 'absolute-value', 'fibonacci-numbers', 'signal-processing', 'martingales', 'complex-geometry', 'cryptography', 'interpolation', 'irreducible-polynomials', 'riemann-zeta', 'sheaf-theory', 'nonlinear-optimization', 'area', 'residue-calculus', 'topological-groups', 'radicals', 'irrational-numbers', 'formal-languages', 'projective-geometry', 'alternative-proof', 'c-star-algebras', 'mathematical-modeling', 'first-order-logic', 'automata', 'vector-bundles', 'smooth-manifolds', 'partitions', 'recursion', 'stochastic-integrals', 'riemann-surfaces', 'symmetric-groups', 'schemes', 'quadratic-forms', 'ordinals', 'divergent-series', 'coding-theory', 'information-theory', 'lagrange-multiplier', 'recursive-algorithms', 'math-software', 'markov-process', 'group-actions', 'trees', 'harmonic-functions', 'rational-numbers', 'economics', 'machine-learning', 'applications', 'random-walk', 'banach-algebras', 'limsup-and-liminf', 'cyclic-groups', 'plane-curves', 'binary', 'matrix-calculus', 'hyperbolic-geometry', 'average', 'weak-convergence', 'diagonalization', 'fixed-point-theorems', 'p-adic-number-theory', 'products', 'computational-geometry', 'pi', 'standard-deviation', 'dice', 'topological-vector-spaces', 'epsilon-delta', 'lattice-orders', 'prime-factorization', 'noncommutative-algebra', 'bayesian', 'control-theory'];
 
   // Okay as a top tag: either popular or otherwise sufficient
-  var Okay = Popular.concat(['actuarial-science', 'algebraic-graph-theory', 'article-writing', 'bessel-functions', 'combinatorial-game-theory', 'complex-integration', 'computational-mathematics', 'context-free-grammar', 'data-analysis', 'descriptive-set-theory', 'descriptive-statistics', 'finite-automata', 'geometric-topology', 'group-cohomology', 'percentages', 'regular-expressions', 'regular-language', 'spectral-graph-theory', 'spherical-geometry', 'splitting-field', 'symplectic-geometry', 'transcendental-numbers', 'word-problem']);   
+  var Okay = Popular.concat(['actuarial-science', 'algebraic-graph-theory', 'article-writing', 'bessel-functions', 'combinatorial-game-theory', 'complex-integration', 'computational-mathematics', 'context-free-grammar', 'data-analysis', 'descriptive-set-theory', 'descriptive-statistics', 'finite-automata', 'geometric-topology', 'group-cohomology', 'percentages', 'quantum-mechanics', 'regular-expressions', 'regular-language', 'spectral-graph-theory', 'spherical-geometry', 'splitting-field', 'symplectic-geometry', 'transcendental-numbers', 'word-problem']);   
   
   // These should not be used on their own
   var Vague = ['advice', 'alternative-proof', 'big-list', 'book-recommendation', 'calculator', 'contest-math', 'definition', 'examples-counterexamples', 'fake-proofs', 'gmat-exam', 'gre-exam', 'independence', 'learning', 'norm', 'notation', 'online-resources', 'problem-solving', 'proof-explanation', 'proof-strategy', 'proof-verification', 'proof-writing', 'reference-request', 'soft-question', 'terminology', 'transformation'];
@@ -76,7 +76,7 @@ function processQuestion(id) {
       comment.postTitle = postData.title;
       comment = commentOnTitle(postData.title, comment);
       comment = commentOnBody(postData.body, comment);
-      comment = commentOnTags(postData.tags, comment);
+      comment = commentOnTags(postData.tags, postData.body, comment);
       if (comment.linkGood) {
         comment.text = comment.text + 'More tips [here](//meta.math.stackexchange.com/q/9959). ';
       }
@@ -159,7 +159,7 @@ function commentOnBody(body, comment) {
 }
 
 
-function commentOnTags(tags, comment) {
+function commentOnTags(tags, body, comment) {
   var obscureTags = ['Consider adding a tag for a broader subject area to which the question belongs. ', 'Questions tend to get more attention when they have a tag for a broad area of mathematics relevant to the question. '];  
   var topTag = tags[0]; 
   var replacing = ReplaceTag.indexOf(topTag);
@@ -182,6 +182,9 @@ function commentOnTags(tags, comment) {
       comment.chat = comment.chat + 'Tagged ' + ManualReview[i].join(', ') + '. ';
       break;
     }
+  }
+  if (/partial/i.test(body) && tags.indexOf('differential-equations') > -1) {
+    comment.chat = comment.chat + 'Tagged differential-equations but mentions "partial". ';
   }
   return comment;
 }
